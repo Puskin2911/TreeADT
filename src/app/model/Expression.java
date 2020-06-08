@@ -13,7 +13,40 @@ public class Expression {
 	public Expression(String expression) {
 		this.expression = expression;
 	}
-	
+
+	public boolean isValidBracket() {
+		Stack<Character> stack = new Stack<Character>();
+
+		for (int i = 0; i < expression.length(); i++) {
+			if (expression.charAt(i) == '(' || expression.charAt(i) == '[' || expression.charAt(i) == '{') {
+				stack.push(expression.charAt(i));
+			} else if (expression.charAt(i) == ')') {
+				if (stack.isEmpty())
+					return false;
+				if (stack.peek() == '(') {
+					stack.pop();
+				} else
+					return false;
+			} else if (expression.charAt(i) == ']') {
+				if (stack.isEmpty())
+					return false;
+				if (stack.peek() == '[') {
+					stack.pop();
+				} else
+					return false;
+			} else if (expression.charAt(i) == '}') {
+				if (stack.isEmpty())
+					return false;
+				if (stack.peek() == '{') {
+					stack.pop();
+				} else
+					return false;
+			}
+		}
+
+		return stack.isEmpty();
+	}
+
 	private String[] getTokens() {
 //		if (isValid() == false)
 //			return null;
@@ -45,7 +78,7 @@ public class Expression {
 		}
 		return tokens.toArray(new String[tokens.size()]);
 	}
-	
+
 	private String[] innerToPost() {
 		String[] tokens = getTokens();
 		ArrayList<String> list = new ArrayList<String>();
@@ -76,16 +109,16 @@ public class Expression {
 		while (!stack.empty()) {
 			list.add(stack.pop());
 		}
-		
+
 		return list.toArray(new String[list.size()]);
 	}
-	
+
 	private static boolean isPriority(String op1, String op2) {
 		if (op1.matches("\\+|\\-") && op2.matches("\\*|\\/"))
 			return false;
 		return true;
 	}
-	
+
 	public BinaryTreeNode<String> buildTree() {
 		String[] tokens = innerToPost();
 		Stack<BinaryTreeNode<String>> stack = new Stack<BinaryTreeNode<String>>();
@@ -104,7 +137,7 @@ public class Expression {
 
 		return stack.pop();
 	}
-	
+
 	private static double caculate(Double value1, Double value2, String op) {
 		if (op.equals("+")) {
 			return Double.valueOf(value1) + Double.valueOf(value2);
@@ -120,7 +153,7 @@ public class Expression {
 		}
 		return 0;
 	}
-	
+
 	public double caculate(BinaryTreeNode<String> tree) {
 		if (tree != null) {
 			if (tree.left(tree) != null && tree.right(tree) != null) {
@@ -137,10 +170,10 @@ public class Expression {
 			throw new IllegalArgumentException("Tree is null");
 		}
 	}
-	
+
 	public static void main(String[] args) {
-		Expression expression = new Expression("1 + 2 + 4 + (5) * 2");
-		
+		Expression expression = new Expression("-1 + 2 +4 + (5) *2");
+
 		System.out.println(expression.caculate(expression.buildTree()));
 	}
 }
