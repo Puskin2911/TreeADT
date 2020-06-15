@@ -23,6 +23,7 @@ public class Caculator extends JFrame {
 	private JPanel contentPane;
 	private JTextField expressionField;
 	private JButton del_btn;
+	private JButton ac_btn;
 	private JButton bracket_btn;
 	private JButton devide_btn;
 	private JButton num7_btn;
@@ -45,8 +46,8 @@ public class Caculator extends JFrame {
 	private boolean typing = true;
 	private boolean subWaiting = false;
 	private Expression ex;
-
 	private ArrayList<Button> buttons;
+	private double ANS = 0.0;
 
 	/**
 	 * Launch the application.
@@ -85,7 +86,7 @@ public class Caculator extends JFrame {
 		contentPane.add(expressionField);
 		expressionField.setColumns(10);
 
-		JButton ac_btn = new Action("AC");
+		ac_btn = new Action("AC");
 		ac_btn.setBackground(Color.WHITE);
 		ac_btn.setBounds(51, 148, 65, 50);
 		contentPane.add(ac_btn);
@@ -154,8 +155,10 @@ public class Caculator extends JFrame {
 		add_btn.setBounds(276, 330, 65, 50);
 		contentPane.add(add_btn);
 
-		ans_btn = new Action("Ans");
+		ans_btn = new Number("Ans");
 		ans_btn.setBounds(51, 391, 65, 50);
+//		ans_btn.setBackground(Color.DARK_GRAY);
+//		ans_btn.setForeground(Color.WHITE);
 		contentPane.add(ans_btn);
 
 		num0_btn = new Number("0");
@@ -164,10 +167,13 @@ public class Caculator extends JFrame {
 
 		floatingpoint_btn = new Operator(",");
 		floatingpoint_btn.setBounds(201, 391, 65, 50);
+//		floatingpoint_btn.setBackground(Color.DARK_GRAY);
+//		floatingpoint_btn.setForeground(Color.WHITE);
 		contentPane.add(floatingpoint_btn);
 
 		caculate_btn = new Action("==");
 		caculate_btn.setBounds(276, 391, 65, 50);
+		caculate_btn.setBackground(Color.RED);
 		contentPane.add(caculate_btn);
 
 		result = new JTextField();
@@ -175,7 +181,7 @@ public class Caculator extends JFrame {
 		result.setFont(new Font("Comic Sans MS", Font.BOLD, 18));
 		result.setEditable(false);
 		result.setColumns(10);
-		result.setBounds(138, 85, 203, 45);
+		result.setBounds(126, 85, 215, 45);
 		contentPane.add(result);
 
 		buttons = new ArrayList<Caculator.Button>();
@@ -202,13 +208,13 @@ public class Caculator extends JFrame {
 
 		JRadioButton onRbtn = new JRadioButton("ON");
 		onRbtn.setFont(new Font("Comic Sans MS", Font.ITALIC, 13));
-		onRbtn.setBounds(71, 84, 55, 23);
+		onRbtn.setBounds(60, 84, 55, 23);
 		contentPane.add(onRbtn);
 
 		JRadioButton offRbtn = new JRadioButton("OFF");
 		offRbtn.setSelected(true);
 		offRbtn.setFont(new Font("Comic Sans MS", Font.ITALIC, 13));
-		offRbtn.setBounds(71, 110, 55, 23);
+		offRbtn.setBounds(60, 110, 55, 23);
 		contentPane.add(offRbtn);
 
 		onRbtn.addActionListener(new ActionListener() {
@@ -256,6 +262,8 @@ public class Caculator extends JFrame {
 		public Number(String name) {
 			super(name);
 			this.addActionListener(this);
+			this.setBackground(Color.DARK_GRAY);
+			this.setForeground(Color.WHITE);
 		}
 
 		@Override
@@ -267,7 +275,9 @@ public class Caculator extends JFrame {
 			String currentEx = expressionField.getText();
 			if (currentEx.isEmpty()) {
 				expressionField.setText(expressionField.getText() + ((Number) e.getSource()).getText());
-			} else {
+			} 
+			
+			else {
 				String lastToken = String.valueOf(currentEx.charAt(currentEx.length() - 1));
 				if (lastToken.matches("\\+|\\-|\\/|x")) {
 					if (subWaiting == true) {
@@ -280,7 +290,13 @@ public class Caculator extends JFrame {
 
 				else if (lastToken.matches("\\)")) {
 					return;
-				} else {
+				}
+				
+				else if (lastToken.matches("s")) {
+					return;
+				}
+				
+				else {
 					expressionField.setText(expressionField.getText() + ((Number) e.getSource()).getText());
 				}
 			}
@@ -294,6 +310,8 @@ public class Caculator extends JFrame {
 		public Operator(String name) {
 			super(name);
 			this.addActionListener(this);
+			this.setBackground(Color.DARK_GRAY);
+			this.setForeground(Color.WHITE);
 		}
 
 		@Override
@@ -305,20 +323,29 @@ public class Caculator extends JFrame {
 			}
 			Operator op = (Operator) e.getSource();
 			String currentEx = expressionField.getText();
+			// 
 			if (currentEx.isEmpty()) {
 
 				if (op.getText().equals("( )")) {
 					expressionField.setText("(");
-				} else {
+				}
+				
+				else if(op.getText().equals(",")) {
+					return;
+				}
+				
+				else {
 					if (!result.getText().matches("ERROR")) {
 						expressionField.setText(op.getText());
 					}
 				}
-			} else {
+			}
+			//
+			else {
 				String lastToken = String.valueOf(currentEx.charAt(currentEx.length() - 1));
 				// Check ()
 				if (op.getText().equals("( )")) {
-					if (lastToken.matches("\\d|\\)")) {
+					if (lastToken.matches("\\d|s")) {
 						expressionField.setText(expressionField.getText() + ")");
 					} else {
 						expressionField.setText(expressionField.getText() + " (");
@@ -326,10 +353,35 @@ public class Caculator extends JFrame {
 				}
 				// Check + - \ *
 				else if (lastToken.matches("\\d")) {
+					if (op.getText().equals(",")) {
+						expressionField.setText(expressionField.getText() + ".");
+					}
+
+					else {
+						expressionField.setText(expressionField.getText() + " " + op.getText());
+					}
+				}
+				
+				else if (lastToken.matches("s")) {
+					if(op.getText().equals(",")) return;
 					expressionField.setText(expressionField.getText() + " " + op.getText());
-				} else if (lastToken.matches("\\/|x") && op.getText().equals("-")) {
+				}
+
+				else if (lastToken.matches("\\/|x") && op.getText().equals("-")) {
 					expressionField.setText(expressionField.getText() + " " + op.getText());
 					subWaiting = true;
+				}
+				
+				else if (lastToken.matches("\\+") && op.getText().matches("\\+|\\-")) {
+					expressionField.setText(expressionField.getText() + " " + op.getText());
+				}
+				
+				else if (lastToken.matches("\\(") &&  op.getText().equals("-")) {
+					expressionField.setText(expressionField.getText() + op.getText());
+					subWaiting = true;
+				}
+				else if (lastToken.matches("\\)")) {
+					expressionField.setText(expressionField.getText() + " " + op.getText());
 				}
 			}
 		}
@@ -342,6 +394,7 @@ public class Caculator extends JFrame {
 		public Action(String name) {
 			super(name);
 			this.addActionListener(this);
+			this.setBackground(Color.WHITE);
 		}
 
 		@Override
@@ -350,6 +403,8 @@ public class Caculator extends JFrame {
 
 			if (action.getText().equals("==")) {
 				String expression = expressionField.getText().replaceAll("x", "*");
+				expression = expression.replaceAll("-Ans", String.valueOf(-ANS));
+				expression = expression.replaceAll("Ans", String.valueOf(ANS));
 				System.out.println(expression);
 
 				if (expression == null || expression.isEmpty()) {
@@ -368,6 +423,7 @@ public class Caculator extends JFrame {
 					return;
 				}
 				result.setText(ex.caculate(ex.buildTree()) + "");
+				ANS = Double.valueOf(result.getText());
 				typing = false;
 			}
 			if (action.getText().equals("AC")) {
@@ -375,6 +431,7 @@ public class Caculator extends JFrame {
 			}
 			if (action.getText().equals("Del")) {
 				String currentEx = expressionField.getText();
+				if(currentEx.isEmpty()) return;
 				expressionField.setText(currentEx.substring(0, currentEx.length() - 1).trim());
 			}
 		}
